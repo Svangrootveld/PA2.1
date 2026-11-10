@@ -26,12 +26,13 @@ jobs:
       run: |
         set -euo pipefail
 
-        py_version=$(awk -F '==' '/^[[:space:]]*python[[:space:]]*==/ {gsub(/[[:space:]]/, "", $2); print $2; exit}' requirements.txt)
+        py_version=$(awk -F '==' '/^[[:space:]]*python[[:space:]]*==/ {gsub(/[[:space:]]/, "", $2); split($2, version, "."); if (version[1] && version[2]) print version[1] "." version[2]; exit}' requirements.txt)
         if [ -z "$py_version" ]; then
-          echo "Could not find 'python == <version>' in requirements.txt" >&2
+          echo "Could not find a valid 'python == <major>.<minor>[.<patch>]' entry in requirements.txt" >&2
           exit 1
         fi
 
+        echo "Using latest available Python patch for $py_version"
         echo "python_version=$py_version" >> "$GITHUB_OUTPUT"
 
     - name: Set up Python
@@ -49,6 +50,7 @@ jobs:
         fi
 
     - name: Initialize summary
+      if: always()
       shell: bash
       run: |
         source .github/scripts/check_utils.sh

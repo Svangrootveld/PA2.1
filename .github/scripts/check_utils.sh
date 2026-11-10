@@ -69,6 +69,8 @@ run_check() {
   local stderr_log="$log_dir/${check_id}.stderr.log"
   local status_file="$log_dir/${check_id}.status"
 
+  mkdir -p "$log_dir"
+
   "$@" > >(tee "$stdout_log") 2> >(tee "$stderr_log" >&2)
   local status=$?
 
